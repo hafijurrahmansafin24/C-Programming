@@ -1,60 +1,215 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct node {
-	int data;
-	struct node* next;
+struct ListNode {
+    int info;
+    struct ListNode *link;
 };
 
+struct ListNode *start = NULL;
+
+struct ListNode* getNode(int value) {
+    struct ListNode *node = (struct ListNode*)malloc(sizeof(struct ListNode));
+    node->info = value;
+    node->link = NULL;
+    return node;
+}
+
+void insertNode(int value) {
+
+    struct ListNode *newNode = getNode(value);
+
+    if (start == NULL) {
+        start = newNode;
+    }
+    else {
+        struct ListNode *ptr = start;
+
+        while (ptr->link != NULL)
+            ptr = ptr->link;
+
+        ptr->link = newNode;
+    }
+}
+
+void removeFirst() {
+
+    if (start == NULL) {
+        printf("Underflow! List is empty.\n");
+        return;
+    }
+
+    struct ListNode *temp = start;
+    start = start->link;
+    free(temp);
+
+    printf("First element removed successfully.\n");
+}
+
+void removeLast() {
+
+    if (start == NULL) {
+        printf("Underflow! List is empty.\n");
+        return;
+    }
+
+    if (start->link == NULL) {
+        free(start);
+        start = NULL;
+        printf("Last element removed successfully.\n");
+        return;
+    }
+
+    struct ListNode *prev = NULL;
+    struct ListNode *curr = start;
+
+    while (curr->link != NULL) {
+        prev = curr;
+        curr = curr->link;
+    }
+
+    prev->link = NULL;
+    free(curr);
+
+    printf("Last element removed successfully.\n");
+}
+
+void removeAtPos(int position) {
+
+    if (start == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    if (position == 1) {
+        removeFirst();
+        return;
+    }
+
+    struct ListNode *curr = start;
+    struct ListNode *prev = NULL;
+
+    for (int i = 1; i < position && curr != NULL; i++) {
+        prev = curr;
+        curr = curr->link;
+    }
+
+    if (curr == NULL) {
+        printf("Invalid position!\n");
+        return;
+    }
+
+    prev->link = curr->link;
+    free(curr);
+
+    printf("Node at position %d removed.\n", position);
+}
+
+void removeByKey(int key) {
+
+    if (start == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    struct ListNode *curr = start;
+    struct ListNode *prev = NULL;
+
+    while (curr != NULL && curr->info != key) {
+        prev = curr;
+        curr = curr->link;
+    }
+
+    if (curr == NULL) {
+        printf("Value not found in list.\n");
+        return;
+    }
+
+    if (prev == NULL) {
+        start = curr->link;
+    } else {
+        prev->link = curr->link;
+    }
+
+    free(curr);
+
+    printf("Node containing %d removed.\n", key);
+}
+
+void showList() {
+
+    if (start == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    struct ListNode *temp = start;
+
+    printf("Updated List: ");
+    while (temp != NULL) {
+        printf("%d ", temp->info);
+        temp = temp->link;
+    }
+    printf("\n");
+}
+
 int main() {
-	struct node *head = NULL, *temp, *newNode, *prev;
-	int n, del;
 
-	printf("Enter number of nodes: ");
-	scanf("%d", &n);
+    int total, value, option, pos, key;
 
-	for(int i = 0; i < n; i++) {
-		newNode = (struct node*)malloc(sizeof(struct node));
-		printf("Enter data: ");
-		scanf("%d", &newNode -> data);
-		newNode->next = NULL;
+    printf("Enter total number of nodes: ");
+    scanf("%d", &total);
 
-		if(head == NULL)
-			head = newNode;
-		else {
-			temp = head;
-			while(temp -> next != NULL)
-				temp = temp -> next;
-			temp -> next = newNode;
-		}
-	}
+    for (int i = 1; i <= total; i++) {
+        printf("Input value for node %d: ", i);
+        scanf("%d", &value);
+        insertNode(value);
+    }
 
-	printf("Enter value to delete: ");
-	scanf("%d", &del);
+    while (1) {
 
-	temp = head;
-	prev = NULL;
+        showList();
 
-	if(temp != NULL && temp -> data == del) {
-		head = temp -> next;
-		free(temp);
-	} else {
-		while(temp != NULL && temp -> data != del) {
-			prev = temp;
-			temp = temp->next;
-		}
-		if(temp != NULL) {
-			prev -> next = temp -> next;
-			free(temp);
-		}
-	}
+        printf("\n--- Deletion Options ---\n");
+        printf("1. Remove First\n");
+        printf("2. Remove Last\n");
+        printf("3. Remove by Position\n");
+        printf("4. Remove by Value\n");
+        printf("5. Exit\n");
 
-	printf("Updated List:\n");
-	temp = head;
-	while(temp != NULL) {
-		printf("%d ", temp -> data);
-		temp = temp->next;
-	}
+        printf("Choose option: ");
+        scanf("%d", &option);
 
-	return 0;
+        switch (option) {
+
+            case 1:
+                removeFirst();
+                break;
+
+            case 2:
+                removeLast();
+                break;
+
+            case 3:
+                printf("Enter position: ");
+                scanf("%d", &pos);
+                removeAtPos(pos);
+                break;
+
+            case 4:
+                printf("Enter value: ");
+                scanf("%d", &key);
+                removeByKey(key);
+                break;
+
+            case 5:
+                printf("Program terminated.\n");
+                exit(0);
+
+            default:
+                printf("Invalid selection!\n");
+        }
+    }
+
+    return 0;
 }
